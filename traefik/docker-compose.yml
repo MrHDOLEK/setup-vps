@@ -1,0 +1,36 @@
+version: '3.7'
+
+services:
+  traefik:
+    image: traefik:v1.7
+    container_name: traefik
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - default
+      - traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.toml:/etc/traefik/traefik.toml
+      - ./acme:/etc/traefik/acme
+    labels:
+      - traefik.frontend.headers.customResponseHeaders=Access-Control-Allow-Origin:*
+    stdin_open: true
+    tty: true
+  watchtower:
+    image: containrrr/watchtower
+    environment:
+      WATCHTOWER_POLL_INTERVAL: 300
+    container_name: watchtower
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config.json:/config.json
+    stdin_open: true
+    tty: true
+
+networks:
+  traefik:
+    name: traefik

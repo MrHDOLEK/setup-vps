@@ -1,0 +1,23 @@
+version: '3.7'
+
+services:
+  portainer:
+    image: portainer/portainer:latest
+    container_name: portainer
+    restart: always
+    networks:
+      - traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer-data:/data
+    labels:
+     - traefik.frontend.rule=Host:<domain>
+     - traefik.port=9000
+     - traefik.backend=portainer
+    stdin_open: true
+    tty: true
+
+networks: 
+  traefik:
+    external:
+      name: traefik

@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  web:
+    image: itzg/rcon
+    container_name: admin_panel
+    restart: always
+    volumes:
+      - "./admin_panel:/opt/rcon-web-admin/db"
+    environment:
+      RWA_USERNAME: admin
+      RWA_PASSWORD: admin
+      RWA_ADMIN: "TRUE"
+      # is referring to the hostname of 'mc' compose service below
+      RWA_RCON_HOST: mc
+      # needs to match the password configured for the container, which is 'minecraft' by default
+      RWA_RCON_PASSWORD: minecraft
+    ports:
+      - 4326:4326
+      - 4327:4327
+    depends_on:
+      - mc
+  mc:
+    image: itzg/minecraft-server
+    container_name: minecraft-azyl
+    restart: always
+    volumes:
+      - "./minecraft_serwer:/data"
+    ports:
+      - 25565:25565
+    environment:
+      EULA: "TRUE"
+      TYPE: BUKKIT
+      MAX_PLAYERS: 10
+      MODE: survival
+      MOTD: example
+      DIFFICULTY: hard
+      ENABLE_COMMAND_BLOCK: "TRUE"
+      MEMORY: 2G
+      mem_limit: 2G
+      mem_reservation: 512m
+      cpus: 1

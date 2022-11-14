@@ -1,0 +1,95 @@
+version: '3'
+
+services:
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: mon_prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - node-exporter
+      - cadvisor
+    networks:
+      - default
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.ignored-mount-points="^(/rootfs|/host|)/(sys|proc|dev|host|etc)($$|/)"'
+      - '--collector.filesystem.ignored-fs-types="^(sys|proc|auto|cgroup|devpts|ns|au|fuse\.lxc|mqueue)(fs|)$$"'
+    networks:
+      - default
+
+  cadvisor:
+    image: google/cadvisor:latest
+    container_name: cadvisor
+    restart: unless-stopped
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - default
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    user: root
+    volumes:
+      - /etc/machine-id:/etc/machine-id:ro
+      - ./promtail:/etc/promtail
+      - ./promtail_data:/tmp
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command:
+      - '--config.file=/etc/promtail/promtail.yml'
+    networks:
+      - default
+    restart: unless-stopped
+    depends_on:
+      - loki
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    volumes:
+      - ./loki:/etc/loki
+    command:
+      - '--config.file=/etc/loki/loki.yml'
+    networks:
+      - default
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    volumes:
+      - ./grafana:/var/lib/grafana
+    depends_on:
+      - prometheus
+    user: "1000"
+    labels:
+      - traefik.frontend.rule=Host:<domain>
+      - traefik.port=3000
+      - traefik.backend=grafana
+    networks:
+      - traefik
+      - default
+
+networks:
+  traefik:
+    external:
+      name: traefik

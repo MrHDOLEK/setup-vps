@@ -1,0 +1,54 @@
+version: '3'
+services:
+  php:
+    image: mrhdolek/scrap-masters-backend:latest
+    env_file: ./.env
+    depends_on:
+      - db
+      - redis
+    labels:
+      - traefik.frontend.rule=Host:<domain>
+      - traefik.port=80
+      - traefik.backend=php
+    networks:
+      - scrap-masters
+      - traefik
+  horizon:
+    image: mrhdolek/scrap-masters-backend:latest
+    env_file: ./.env
+    entrypoint: sh -c "php artisan horizon"
+    depends_on:
+      - db
+      - redis
+      - php
+    networks:
+      - scrap-masters
+  db:
+    image: postgres:13
+    environment:
+      PGPASSWORD: '${DB_PASSWORD}'
+      POSTGRES_DB: '${DB_DATABASE}'
+      POSTGRES_USER: '${DB_USERNAME}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD}'
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    networks:
+      - scrap-masters
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "${DB_DATABASE}", "-U", "${DB_USERNAME}"]
+      retries: 3
+      timeout: 5s
+  redis:
+    image: 'redis:6'
+    command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD}"
+    volumes:
+      - ./storage/redis:/data
+    networks:
+      - scrap-masters
+# Networks
+networks:
+  scrap-masters:
+    driver: bridge
+  traefik:
+    external:
+      name: traefik

@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  teamspeak:
+    image: teamspeak:latest
+    container_name: teamspeak
+    restart: always
+    volumes:
+        - "./teamspeak:/var/ts3server/"
+    ports:
+      - 9987:9987/udp
+      - 10011:10011
+      - 30033:30033
+    mem_reservation: 128M
+    depends_on:
+      - "db"
+    environment:
+      TS3SERVER_DB_PLUGIN: ts3db_mariadb
+      TS3SERVER_DB_SQLCREATEPATH: create_mariadb
+      TS3SERVER_DB_HOST: db
+      TS3SERVER_DB_USER: root
+      TS3SERVER_DB_PASSWORD: teamspeak
+      TS3SERVER_DB_NAME: teamspeak
+      TS3SERVER_DB_WAITUNTILREADY: 30
+      TZ: Europe/Warsaw
+      TS3SERVER_LICENSE: accept
+  db:
+    image: mariadb
+    container_name: teamspeak-db
+    restart: always
+    volumes:
+        - "./teamspeak-db:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: teamspeak
+      MYSQL_DATABASE: teamspeak
