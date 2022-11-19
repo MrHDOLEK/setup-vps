@@ -1,15 +1,37 @@
 version: '3'
 services:
+  node:
+    image: mrhdolek/scrap-masters-frontend:latest
+    env_file: ./frontend/.env
+    depends_on:
+      - php
+    labels:
+      - traefik.frontend.rule=Host:<domain>.scrapmasters.site
+      - traefik.port=80
+      - traefik.backend=node
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://node:80"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    networks:
+      - scrap-masters
+      - traefik
   php:
     image: mrhdolek/scrap-masters-backend:latest
-    env_file: ./.env
+    env_file: ./backend/.env
     depends_on:
       - db
       - redis
     labels:
-      - traefik.frontend.rule=Host:<domain>
+      - traefik.frontend.rule=Host:<domain>.scrapmasters.site
       - traefik.port=80
       - traefik.backend=php
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://php:80"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
     networks:
       - scrap-masters
       - traefik
@@ -41,6 +63,11 @@ services:
   redis:
     image: 'redis:6'
     command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD}"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
     volumes:
       - ./storage/redis:/data
     networks:
