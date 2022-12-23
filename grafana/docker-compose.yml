@@ -82,9 +82,12 @@ services:
       - prometheus
     user: "1000"
     labels:
-      - traefik.frontend.rule=Host:<domain>
-      - traefik.port=3000
-      - traefik.backend=grafana
+      - traefik.enable=true
+      - traefik.http.routers.grafana.rule=Host(`<DOMAIN>`)
+      - traefik.http.routers.grafana.entrypoints=https
+      - traefik.http.routers.grafana.tls=true
+      - traefik.http.routers.grafana.tls.certresolver=letsencrypt
+      - traefik.http.services.grafana.loadbalancer.server.port=3000
     networks:
       - traefik
       - default

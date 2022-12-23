@@ -13,3 +13,13 @@
 - portainer
 ### Nice to setup
 - grafana (when creating remember sudo example sudo docker-compose up -d) (example dashboard is a folder grafana_dashboard this dashboard must be manual import for site) remember for setup <domain>
+
+### Password setup to Treafic
+```bash
+htpasswd -nBC 10 admin
+
+New password:
+Re-type new password:
+
+admin:$2y$10$zi5n43jq9S63gBqSJwHTH.nCai2vB0SW/ABPGg2jSGmJBVRo0A.ni
+```
