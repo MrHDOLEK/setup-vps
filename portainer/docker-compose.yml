@@ -11,9 +11,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./portainer-data:/data
     labels:
-     - traefik.frontend.rule=Host:<domain>
-     - traefik.port=9000
-     - traefik.backend=portainer
+      - traefik.enable=true
+      - traefik.http.routers.portainer.rule=Host(`<DOMAIN>`)
+      - traefik.http.routers.portainer.entrypoints=https
+      - traefik.http.routers.portainer.tls.certresolver=letsencrypt
+      - traefik.http.services.portainer.loadbalancer.server.port=9000
     stdin_open: true
     tty: true
 

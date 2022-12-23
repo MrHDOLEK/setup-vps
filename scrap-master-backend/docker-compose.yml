@@ -6,9 +6,12 @@ services:
     depends_on:
       - php
     labels:
-      - traefik.frontend.rule=Host:<domain>.scrapmasters.site
-      - traefik.port=80
-      - traefik.backend=node
+      - traefik.enable=true
+      - traefik.http.routers.node-scrapmasters.rule=Host(`<DOMAIN>`)
+      - traefik.http.routers.node-scrapmasters.entrypoints=https
+      - traefik.http.routers.node-scrapmasters.tls=true
+      - traefik.http.routers.node-scrapmasters.tls.certresolver=letsencrypt
+      - traefik.http.services.node-scrapmasters.loadbalancer.server.port=80
     healthcheck:
       test: ["CMD", "curl", "-f", "http://node:80"]
       interval: 1s
@@ -24,9 +27,12 @@ services:
       - db
       - redis
     labels:
-      - traefik.frontend.rule=Host:<domain>.scrapmasters.site
-      - traefik.port=80
-      - traefik.backend=php
+      - traefik.enable=true
+      - traefik.http.routers.backend-scrapmasters.rule=Host(`<DOMAIN>`)
+      - traefik.http.routers.backend-scrapmasters.entrypoints=https
+      - traefik.http.routers.backend-scrapmasters.tls=true
+      - traefik.http.routers.backend-scrapmasters.tls.certresolver=letsencrypt
+      - traefik.http.services.backend-scrapmasters.loadbalancer.server.port=80
     healthcheck:
       test: ["CMD", "curl", "-f", "http://php:80"]
       interval: 1s
