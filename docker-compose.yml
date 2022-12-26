@@ -8,10 +8,12 @@ services:
     container_name: ansible-menagment-node
     stdin_open: true
     tty: true
+    working_dir: /etc/ansible
     volumes:
       - ./:/etc/ansible/
     networks:
       - ansible
+
   debian:
     build:
       context: .
@@ -24,6 +26,7 @@ services:
       - ${EXTERNAL_SSH_PORT:-22}:22
     networks:
       - ansible
+
 networks:
   ansible:
     name: ansible

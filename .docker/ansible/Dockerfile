@@ -20,9 +20,9 @@ FROM base as ssh
 
 RUN apt update && apt install  openssh-server sudo -y
 
-RUN useradd -rm -d /home/ubuntu -s /bin/bash -g root -G sudo -u 1000 test
+RUN useradd -m test && echo "test:test" | chpasswd && adduser test sudo
 
-RUN  echo 'test:test' | chpasswd
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 RUN service ssh start
 
