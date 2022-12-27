@@ -19,7 +19,7 @@ services:
     stdin_open: true
     tty: true
 
-networks: 
+networks:
   traefik:
     external:
       name: traefik
