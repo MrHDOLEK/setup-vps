@@ -1,0 +1,10 @@
+---
+- name: Install iptables
+  apt:
+    name: iptables
+    state: present
+
+- name: Install iptables-persistent
+  apt:
+    name: iptables-persistent
+    state: present

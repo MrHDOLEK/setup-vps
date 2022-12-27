@@ -1,0 +1,26 @@
+---
+- name: Ensure wheel group is present
+  group:
+    name: wheel
+    state: present
+
+- name: Install the `sudo` package
+  package:
+    name: sudo
+    state: latest
+
+- name: Ensure wheel group has sudo privileges
+  copy:
+    content: '%wheel ALL=(ALL:ALL) NOPASSWD:ALL'
+    dest: /etc/sudoers.d/wheel_nopasswd
+    mode: 0440
+    validate: "/usr/sbin/visudo -cf %s"
+
+- name: Create the non-root user account
+  user:
+    name: "{{ username }}"
+    password: "{{ password }}"
+    shell: /bin/bash
+    update_password: on_create
+    groups: wheel
+    append: yes

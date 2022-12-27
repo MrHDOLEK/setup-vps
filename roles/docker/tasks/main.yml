@@ -1,0 +1,9 @@
+---
+- import_tasks: docker-install.yml
+  tags: docker-install
+
+- import_tasks: docker-compose.yml
+  tags: docker-compose
+
+- import_tasks: docker-users.yml
+  tags: docker-users

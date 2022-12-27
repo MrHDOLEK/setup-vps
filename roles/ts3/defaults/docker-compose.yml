@@ -5,7 +5,7 @@ services:
     container_name: teamspeak
     restart: always
     volumes:
-        - "./teamspeak:/var/ts3server/"
+      - "./teamspeak:/var/ts3server/"
     ports:
       - 9987:9987/udp
       - 10011:10011
@@ -28,7 +28,7 @@ services:
     container_name: teamspeak-db
     restart: always
     volumes:
-        - "./teamspeak-db:/var/lib/mysql"
+      - "./teamspeak-db:/var/lib/mysql"
     environment:
       MYSQL_ROOT_PASSWORD: teamspeak
       MYSQL_DATABASE: teamspeak
