@@ -5,11 +5,8 @@
   vars:
     username: user
     password: $6$.9Xq9o0C$HkrP2VBYQWZdh48LURUM5sRuAFUwBhUXgqCkft3eiRvjBvI1L0sjRirTa0mB.hJMztvDkV6vMh2vJfR3GpImH0
-<<<<<<< HEAD
     LETSENCRYPT_EMAIL: example@example.pl
     DOMAIN: aleksander-kowalski.pl
-=======
->>>>>>> main
 
   pre_tasks:
     - name: Update apt cache if needed
@@ -31,9 +28,7 @@
 
     - role: fail2ban
       tags: fail2ban
-<<<<<<< HEAD
 
     - role: traefik
       tags: traefik
-=======
->>>>>>> main
+
