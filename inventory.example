@@ -1,0 +1,7 @@
+[vps]
+debian
+
+[vps:vars]
+ansible_user=test
+ansible_ssh_pass=test
+ansible_port=22

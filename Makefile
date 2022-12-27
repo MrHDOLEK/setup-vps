@@ -1,4 +1,6 @@
 .DEFAULT_GOAL := help
+SHELL := /bin/bash
+
 start: ## Run docker for a project
 	docker-compose up -d
 
@@ -7,6 +9,15 @@ stop: ## Stop all containers for a project
 
 bash: ## Exec bash for ansible container
 	docker-compose exec ansible-menagment-node bash
+
+create_password: ## Create password hash inside docker container
+	mkpasswd -m sha512crypt --stdin <<< ${PASS}
+
+treafic_password: ## Create password for the treafic
+	htpasswd -nBC 10 admin
+
+init_vps: ## Init setup vps
+	ansible-playbook -i inventory vps.yml
 
 .PHONY: help
 help:

@@ -1,25 +1,54 @@
-# Vps setup 
+# Ansible: VPS Setup
 
-## Collection of knowledge
-- [mikrus](https://www.notion.so/Biblioteka-Mikrusa-3c757621cf9b4fbfb3909fc04a77dbcf?p=9003f1758646468ebe6dbb5afb1a8f4d&pm=s)
 ## Requirements
-- linux (debian prefers)
+- docker
+- docker-compose
+or
+- python
+- ansible installed for your local machine
+
+## What is set up ? 
+- AppArmor
+- Auditd
+- Cron
+- Iptables
+- journald
+- sshd
+- sysctl
+- timesyncd
+- fail2ban
 - docker and docker-compose
-- domain 
-- fail2ban (nice to have)
-## Setup 
-### Applications that are required for full operation
-- traefik (<mail> in the traefik.toml and add key to docker registry key for docker-compose in watchtower)
-- portainer
-### Nice to setup
-- grafana (when creating remember sudo example sudo docker-compose up -d) (example dashboard is a folder grafana_dashboard this dashboard must be manual import for site) remember for setup <domain>
+- create user
+- off root login
+- remove unnecessary services
 
-### Password setup to Treafic
-```bash
-htpasswd -nBC 10 admin
+## Setup
+1. `cp inventory.example inventory`
+2. You need to change these variables in the inventory file to
+    - debian -> Ip address or hostname
+    - ansible_user=test -> The name of the user by which we will initiate the server. Ideally, it should be root or a user in the sudo group
+    - ansible_ssh_pass=test -> Password to user above
+3. You must replace in the vps.yml this value
+    - username -> The username to which we will be logging in
+    - password -> Hash of your password. To create it you need to run this command `make create_password PASS=<your password>`
 
-New password:
-Re-type new password:
+### By docker
+1. `make start` or `docker-compose up -d`
+2. `make bash` or `docker exec -it <container id> bash`
+3. `ansible-playbook -i inventory vps.yml`
+4. If we want to install the selected modules then `ansible-playbook -i inventory vps.yml --tags "user,docker"`
+### By ansible for local machine
+1. `ansible-galaxy install -r requirements.yml`
+2. `ansible-playbook -i inventory vps.yml`
+3. If we want to install the selected modules then `ansible-playbook -i inventory vps.yml --tags "user,docker"`
 
-admin:$2y$10$zi5n43jq9S63gBqSJwHTH.nCai2vB0SW/ABPGg2jSGmJBVRo0A.ni
-```
+## All commands
+
+-  `make help`
+
+## FAQ
+##
+**Q:** Where can I get knowledge in linux administration ? ?
+
+**A:** Collection of knowledge [mikrus](https://www.notion.so/Biblioteka-Mikrusa-3c757621cf9b4fbfb3909fc04a77dbcf?p=9003f1758646468ebe6dbb5afb1a8f4d&pm=s)
+##

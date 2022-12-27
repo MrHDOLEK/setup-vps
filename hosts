@@ -1,1 +1,0 @@
-debian_ipv4 ansible_host=debian ansible_user=test ansible_port=22 ansible_ssh_pass=test
