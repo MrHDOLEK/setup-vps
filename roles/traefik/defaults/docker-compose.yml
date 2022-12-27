@@ -1,0 +1,62 @@
+version: '3.7'
+
+services:
+  traefik:
+    image: traefik:2.8
+    container_name: traefik
+    command:
+      - --entrypoints.http.address=:80
+      - --entrypoints.https.address=:443
+      - --providers.docker=true
+      - --providers.docker.swarmMode=false
+      - --api=true
+      - --providers.docker.network=traefik
+      - --providers.docker.exposedbydefault=false
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --metrics.prometheus=true
+      - --metrics.prometheus.buckets=0.1,0.3,1.2,5.0
+
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - default
+      - traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./acme:/letsencrypt
+    labels:
+      - traefik.enable=true
+      - traefik.http.middlewares.cors.headers.customResponseHeaders.Access-Control-Allow-Origin=*
+      - traefik.http.routers.to-https.entrypoints=http
+      - traefik.http.routers.to-https.middlewares=to-https
+      - traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN}`)
+      - traefik.http.routers.traefik.tls.certresolver=letsencrypt
+      - traefik.http.routers.traefik.entrypoints=https
+      - traefik.http.routers.traefik.middlewares=auth
+      - traefik.http.routers.traefik.service=api@internal
+      - traefik.http.routers.traefik.tls=true
+      - traefik.http.middlewares.to-https.redirectscheme.scheme=https
+      - traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_USER}:${TRAEFIK_PASSWORD_HASH}
+
+
+    stdin_open: true
+    tty: true
+  watchtower:
+    image: containrrr/watchtower
+    environment:
+      WATCHTOWER_POLL_INTERVAL: 300
+    container_name: watchtower
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config.json:/config.json
+    stdin_open: true
+    tty: true
+
+networks:
+  traefik:
+    name: traefik
