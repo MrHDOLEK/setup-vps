@@ -1,0 +1,11 @@
+---
+- name: copy docker-compose.yml
+  copy:
+    src: data/docker-compose.yml
+    dest: tmp/
+    register: command_output
+
+- name: Print to console
+  debug:
+    msg: "{{command_output.stdout}}"
+

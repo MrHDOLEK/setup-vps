@@ -1,2 +1,0 @@
-# Vps setup 
-
