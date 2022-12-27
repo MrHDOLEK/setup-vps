@@ -48,3 +48,12 @@
     repo: "{{ docker_apt_repository }}"
     state: present
     update_cache: true
+
+- name: Install docker
+  become: yes
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: latest
