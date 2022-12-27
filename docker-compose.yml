@@ -13,7 +13,6 @@ services:
       - ./:/etc/ansible/
     networks:
       - ansible
-
   debian:
     build:
       context: .

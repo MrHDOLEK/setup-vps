@@ -14,7 +14,6 @@ jobs:
       - uses: actions/checkout@v3
       - name: yaml-lint
         uses: ibiqlik/action-yamllint@v3
-        fail-fast: false
         with:
           file_or_dir: .
           config_file: .yamllint
