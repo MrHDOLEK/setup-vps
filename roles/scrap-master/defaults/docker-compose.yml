@@ -1,0 +1,87 @@
+version: '3'
+services:
+  node:
+    image: mrhdolek/scrap-masters-frontend:latest
+    env_file: frontend/.env
+    depends_on:
+      - php
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.node-scrapmasters.rule=Host(`<DOMAIN>`)
+      - traefik.http.routers.node-scrapmasters.entrypoints=https
+      - traefik.http.routers.node-scrapmasters.tls=true
+      - traefik.http.routers.node-scrapmasters.tls.certresolver=letsencrypt
+      - traefik.http.services.node-scrapmasters.loadbalancer.server.port=80
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://node:80" ]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    networks:
+      - scrap-masters
+      - traefik
+  php:
+    image: mrhdolek/scrap-masters-backend:latest
+    env_file: backend/.env
+    depends_on:
+      - db
+      - redis
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.backend-scrapmasters.rule=Host(`<DOMAIN>`)
+      - traefik.http.routers.backend-scrapmasters.entrypoints=https
+      - traefik.http.routers.backend-scrapmasters.tls=true
+      - traefik.http.routers.backend-scrapmasters.tls.certresolver=letsencrypt
+      - traefik.http.services.backend-scrapmasters.loadbalancer.server.port=80
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://php:80" ]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    networks:
+      - scrap-masters
+      - traefik
+  horizon:
+    image: mrhdolek/scrap-masters-backend:latest
+    env_file: ./.env
+    entrypoint: sh -c "php artisan horizon"
+    depends_on:
+      - db
+      - redis
+      - php
+    networks:
+      - scrap-masters
+  db:
+    image: postgres:13
+    environment:
+      PGPASSWORD: '${DB_PASSWORD}'
+      POSTGRES_DB: '${DB_DATABASE}'
+      POSTGRES_USER: '${DB_USERNAME}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD}'
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    networks:
+      - scrap-masters
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${DB_DATABASE}", "-U", "${DB_USERNAME}" ]
+      retries: 3
+      timeout: 5s
+  redis:
+    image: 'redis:6'
+    command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD}"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    volumes:
+      - ./storage/redis:/data
+    networks:
+      - scrap-masters
+# Networks
+networks:
+  scrap-masters:
+    driver: bridge
+  traefik:
+    external:
+      name: traefik
