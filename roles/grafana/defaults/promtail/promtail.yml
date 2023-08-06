@@ -16,6 +16,9 @@ scrape_configs:
           - localhost
         labels:
           job: varlogs
+          host: VPS
+          os_name: debian
+          os_version: "10"
           __path__: /var/log/*log
 
   - job_name: containers
@@ -24,6 +27,8 @@ scrape_configs:
           - localhost
         labels:
           job: containerlogs
+          container_name: your_container_name
+          image_name: your_image_name
           __path__: /var/lib/docker/containers/*/*log
 
     pipeline_stages:
